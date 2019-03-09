@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8">
+    <title>Word Guess Game</title>
+</head>
+
+<body>
+    <div id="the game">
+        <h1> Welcome to the Word Guess Game!</h1>
+        <p></p>
+        <h3> To play, please enter any Alphabetical characters to find the word.</h3>
+        <p></p>
+        <p>User has entered: <span id="key"></span></p>
+        <p></p>
+        <p><span id="game"></span></p>
+        <p></p>
+        <p>Guesses so far: <span id="guess"></span></p>
+        <p></p>
+        <p>Try: <span id="try">0</span></p>
+        <p></p>
+        <p>Difficulty: <span id="difficulty"></span></p>
+        <p></p>
+        <p>Word Length: <span id="length"></span></p>
+        <p></p>
+        <p>Wins: <span id="win">0</span></p>
+        <p></p>
+        <p>Losses: <span id="loss">0</span></p>
+        <p></p>
+        <textarea rows="5" cols="6" id="hangman1" style="display:none">
+ +---+
+        |
+        |
+        |
+  ===</textarea>
+        <textarea rows="5" cols="6" id="hangman2" style="display:none">
+ +---+
+   O   |
+        |
+        |
+   ===</textarea>
+        <textarea rows="5" cols="6" id="hangman3" style="display:none">
+ +---+
+   O   |
+   |    |
+        |
+   ===</textarea>
+        <textarea rows="5" cols="6" id="hangman4" style="display:none">
+ +---+
+   O   |
+  /|    |
+        |
+     ==="</textarea>
+        <textarea rows="5" cols="6" id="hangman5" style="display:none">
+ +---+
+    O  |
+   /|\  |
+        |
+    ===</textarea>
+        <textarea rows="5" cols="6" id="hangman6" style="display:none">
+ +---+
+    O  |
+   /|\  |
+   /    |
+    ===</textarea>
+        <textarea rows="5" cols="6" id="hangman7" style="display:none">
+ +---+
+    O  |
+   /|\  |
+   / \  |
+    ===</textarea>
+        <p></p>
+        <h4>Find below the Rules of the game</h4>
+        <p></p>
+        <ul>
+            <li>You have 7 tries to find the full word</li>
+            <li>Only recognizable keys are alphabetical</li>
+            <li>If you type the same key twice, it will not count towards the count</li>
+        </ul>
+    </div>
+
+    <script type="text/javascript">
+    var hangman = [`"
+   +---+
+       |
+       |
+       |
+      ==="`,`"
+   +---+
+   O   |
+       |
+       |
+      ==="`,`"
+   +---+
+   O   |
+   |   |
+       |
+      ==="`,`"
+   +---+
+   O   |
+  /|   |
+       |
+      ==="`,`"
+   +---+
+   O   |
+  /|\  |
+       |
+      ==="`,`"
+   +---+
+   O   |
+  /|\  |
+  /    |
+      ==="`,`"
+   +---+
+   O   |
+  /|\  |
+  / \  |
+      ==="` ];
+
+        var difficulty = prompt("Please select difficulty level.\nPlease type easy, medium or hard");
+
+        var chosen = false;
+
+        var length = 0;
+
+        var count = 0;
+
+        while (!chosen) {
+            difficulty = difficulty.toLowerCase();
+            if (difficulty === "easy") {
+                length = 3;
+                chosen = true;
+                console.log("Difficulty selected is: " + difficulty);
+            } else if (difficulty === "medium") {
+                length = 5;
+                chosen = true;
+                console.log("Difficulty selected is: " + difficulty);
+            } else if (difficulty === "hard") {
+                length = 6;
+                chosen = true;
+                console.log("Difficulty selected is: " + difficulty);
+            } else {
+                difficulty = prompt("Wrong entry typed.\nPlease type easy, medium or hard");
+                console.log("Difficulty typed is: " + difficulty);
+            }
+        }
+
+        var array3 = ["ace", "toy", "aba", "try", "bid", "pat"];
+        var array5 = ["mario", "bored", "fuzzy", "fizzy", "pizza", "quick"];
+        var array6 = ["abused", "action", "chrome", "ginger", "italic", "marrow"];
+
+        //word that user has to guess
+        var word = "";
+        //word showing either characters or '_' if not found
+        var guessWord = "";
+
+        //easy choice will include 3 letter words, medium 5 and hard will include 6 letter words
+        newGuessWord(difficulty);
+
+        //setHangman(count);
+
+        var guesses = "";
+
+        console.log("setting difficulty on html to: "+difficulty);
+        document.getElementById("difficulty").textContent = difficulty;
+        console.log("setting length on html to: "+length);
+        document.getElementById("length").textContent = length;
+
+        // This function is run whenever the user presses a key.
+        document.onkeyup = function (event) {
+
+            // Determines which key was pressed.
+            var userGuess = event.key;
+
+            console.log("User pressed: "+userGuess);
+
+            console.log("Checking at first to see if it is a character");
+
+            if( isAlphaOrParen(userGuess))
+            {
+            
+                console.log("Checking in html document to see if user has typed it already: "+document.getElementById("guess").textContent);
+                if (document.getElementById("guess").textContent.includes(userGuess)) {
+                    alert("Key has already been pressed.\nPlease try again.");
+                } else {
+                    
+                    count = count + 1;
+                    console.log("Increased count to: "+count);
+
+                    if (guesses.length === 0) {
+                        console.log("Guesses were 0, so we are setting the first guess");
+                        guesses = userGuess;
+                    } else {
+                        console.log("Previous guesses found, adding a \",\" and the user guess");
+                        guesses = guesses + " ," + userGuess;
+                    }
+
+                    //console.log("Going through the word to check if the guess is good");
+                    var indices = [];
+                    for (var i = 0; i < word.length; i++) {
+                        //console.log("Checking that: "+word[i]+" is equal to: "+userGuess);
+                        if (word[i] === userGuess) {
+                            //console.log("User guess is part of the word, pushing to indeces array");
+                            indices.push(i);
+                        }
+                    }
+
+                    console.log("Indeces array is: "+indices);
+
+                    if( indices.length > 0 ){
+                        //console.log("Old guess word is: "+guessWord);
+                        var tempGuessWord = "";
+                        indices.forEach(element => {
+                            console.log("Found index: "+element);
+                            tempGuessWord = guessWord.replaceAt(element,userGuess);
+                        });
+                        guessWord = tempGuessWord;
+                        //console.log("New guess word is: "+guessWord);
+                    }
+                    
+
+                    if (guessWord.includes('_')) {
+                        if (count === 7) {
+                            //setHangman(count);
+                            document.getElementById("loss").textContent = parseInt(document.getElementById("loss").textContent) +
+                                1;
+                            setInvisible("hangman"+parseInt(count-1));
+                            setVisible("hangman"+parseInt(count));
+                            alert("You have LOST this round...\nPlease try again");
+                            restart();
+                        } else {
+                            if(count !== 1 ){
+
+                                setInvisible("hangman"+parseInt(count-1));
+                                setVisible("hangman"+parseInt(count));
+            
+                                //setHangman(count);
+
+                                setUserGuess(userGuess);
+
+                                setGuessWord(guessWord);
+
+                                setGuesses(guesses);
+
+                                setCount(count);
+                            } else {
+                                setVisible("hangman"+parseInt(count));
+                                setInvisible("hangman"+parseInt(7));
+                            }
+                        }
+                    } else {
+                        document.getElementById("win").textContent = parseInt(document.getElementById("win").textContent) +
+                            1;
+                        alert("You have WON this round...\nPlease play again");
+                        restart();
+                        setInvisible("hangman"+parseInt(count-1));
+                        //setHangman(0);
+                    }
+                }
+            }
+            else
+            {
+                alert('Please input alphabet characters only');
+            }
+        };
+
+        String.prototype.replaceAt=function(index, replacement) {
+            return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
+        }
+
+        function isAlphaOrParen(str) {
+            return /^[a-z]+$/.test(str);
+        }
+
+        function restart() {
+            console.log("------------------------");
+            //console.log("in the restart function");
+            console.log("*** Resetting count to 0");
+            count = 0;
+            setCount(count);
+            console.log("*** Resetting guesses so far");
+            guesses = "";
+            setGuesses(guesses);
+            console.log("*** Resetting user key guess");
+            guessWord = "";
+            setUserGuess(guessWord);
+            console.log("*** Resetting random word.");
+            newGuessWord(difficulty);
+        }
+
+        function setHangman(index) {
+            console.log("Setting hangman pic to: " + hangman[index]);
+            document.getElementById("hangman").textContent = hangman[index];
+        }
+
+        function setCount(num) {
+            console.log("In setCount function with parameter: "+num);
+            console.log("Setting try element to: " + num);
+            //which try the user is currently in.... max of 7
+            document.getElementById("try").textContent = num;
+        }
+
+        function setVisible(id) {
+            document.getElementById(id).style.display = "block";
+        }
+
+        function setInvisible(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function setGuessWord(txt) {
+            console.log("In setGuessWord function with parameter: "+ txt);
+            console.log("Setting the guessword in game element to: " + txt);
+            //The actuall word with either '_' or the correctly guessed characters
+            document.getElementById("game").textContent = txt;
+        }
+
+        function setGuesses(txt) {
+            console.log("In setGuesses function with parameter: "+txt);
+            console.log("Setting user guesses in guess element to: " + txt);
+            //guesses so far, history of typed characters
+            console.log("Old guesses: "+ document.getElementById("guess").textContent)
+            document.getElementById("guess").textContent = txt;
+            console.log("New guesses: "+ document.getElementById("guess").textContent)
+            
+        }
+
+        function setDifficulty(txt) {
+            console.log("In setDifficulty function with parameter: "+txt);
+            console.log("Setting the difficulty on difficulty element to: " + txt);
+            //The actuall word with either '_' or the correctly guessed characters
+            document.getElementById("difficulty").textContent = txt;
+        }
+
+        function setUserGuess(txt) {
+            console.log("In setUserGuess function with parameter: "+txt);
+            console.log("Setting the user Key Press on key element to: "+txt);
+            //html id for the current key press
+            document.getElementById("key").textContent = txt;
+        }
+
+        function newGuessWord(txt) {
+
+            console.log("In newGuessWord function with difficulty: "+txt);
+
+            word = "";
+            if (txt === "easy") {
+                word = array3[Math.floor(Math.random() * array3.length)]
+            } else if (txt === "medium") {
+                word = array5[Math.floor(Math.random() * array5.length)]
+            } else if (txt === "hard") {
+                word = array6[Math.floor(Math.random() * array6.length)]
+            }
+            console.log("Word randomly selected is: " + word);
+
+            var count = length;
+            while (count > 0) {
+                guessWord = guessWord + "_";
+                count = count - 1;
+            }
+            console.log("*** Resetting guess word.");
+            setGuessWord(guessWord);
+        }
+    </script>
+</body>
+
+</html>
