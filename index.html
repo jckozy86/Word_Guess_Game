@@ -186,6 +186,9 @@
                 } else {
                     
                     count = count + 1;
+
+                    console.log("***** Count: "+count+" *****");
+
                     console.log("Increased count to: "+count);
 
                     if (guesses.length === 0) {
@@ -237,24 +240,26 @@
             
                                 //setHangman(count);
 
-                                setUserGuess(userGuess);
-
-                                setGuessWord(guessWord);
-
-                                setGuesses(guesses);
-
-                                setCount(count);
+                                
                             } else {
                                 setVisible("hangman"+parseInt(count));
                                 setInvisible("hangman"+parseInt(7));
                             }
+                            setUserGuess(userGuess);
+
+                            setGuessWord(guessWord);
+
+                            setGuesses(guesses);
+
+                            setCount(count);
                         }
                     } else {
                         document.getElementById("win").textContent = parseInt(document.getElementById("win").textContent) +
                             1;
+                        setInvisible("hangman"+parseInt(count-1));
                         alert("You have WON this round...\nPlease play again");
                         restart();
-                        setInvisible("hangman"+parseInt(count-1));
+                        
                         //setHangman(0);
                     }
                 }
@@ -302,10 +307,12 @@
         }
 
         function setVisible(id) {
+            console.log("Setting id: "+id+" to visible.")
             document.getElementById(id).style.display = "block";
         }
 
         function setInvisible(id) {
+            console.log("Setting id: "+id+" to invisible.")
             document.getElementById(id).style.display = "none";
         }
 
